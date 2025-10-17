@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+
+# Virtual envs
+.venv/
+venv/
+ENV/
+.env
+
+# Packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Editors/OS
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Data/models (optional to ignore contents)
+# data/*
+# models/*
