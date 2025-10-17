@@ -65,9 +65,12 @@ def preprocess_data(data_dict: dict) -> pd.DataFrame:
         how='left',
     )
 
+    # Failures CSV has column named 'failure' with values like 'comp1' .. 'comp4'
+    # Normalize to 'failure_comp' for downstream logic
+    failures_norm = failures.rename(columns={'failure': 'failure_comp'})
     df = pd.merge(
         df,
-        failures.rename(columns={'comp': 'failure_comp'}),
+        failures_norm,
         on=['machineID', 'datetime'],
         how='left',
     )
@@ -79,11 +82,14 @@ def preprocess_data(data_dict: dict) -> pd.DataFrame:
         how='left',
     )
 
-    # 3. Fill NaNs with 0 (simple approach consistent with the outline)
-    df = df.fillna(0)
+    # 3. Create target column BEFORE generic NaN fill: 1 if any failure component present
+    if 'failure_comp' in df.columns:
+        df['failure'] = df['failure_comp'].notna().astype(int)
+    else:
+        df['failure'] = 0
 
-    # 4. Create target column: 1 if any failure component present
-    df['failure'] = (df['failure_comp'] != 0).astype(int)
+    # Now fill remaining NaNs with 0 for simpler UI/modeling
+    df = df.fillna(0)
 
     # 5. Encode 'model' as categorical codes
     df['model'] = df['model'].astype('category').cat.codes
